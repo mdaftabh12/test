@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Import Your Collection - Wine Vault</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/font-awesome.css" rel="stylesheet">
+        <link href="css/all.css" rel="stylesheet">
+        <link href="css/datatables.min.css" rel="stylesheet">
+        <link href="css/toastr.min.css" rel="stylesheet">
+        <link href="css/animate.css" rel="stylesheet">
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <li class="nav-header">
+                            <div class="dropdown profile-element">
+                                <img alt="Profile Image" class="rounded-circle" id="profileImageElement" />
+                                <a href="/dashboard">
+                                    <span class="block m-t-xs" id="firstnamePlaceholder"></span>
+                                </a>
+                            </div>
+                            <div class="logo-element">
+                                Wine Vault
+                            </div>
+                        </li>
+                        <li>
+                            <a href="/dashboard"><i class="fa fa-home"></i> <span class="nav-label">Dashboard</span></a>
+                        </li>
+                        <li>
+                            <a href="/collection"><i class="fa fa-list-ul"></i> <span class="nav-label">Collection</span></a>
+                        </li>
+                        <li>
+                            <a href="/editprofile"><i class="fa fa-pencil"></i> <span class="nav-label">Edit Your Profile</span></a>
+                        </li>
+                        <li>
+                            <a href="/importwine"><i class="fa fa-upload"></i> <span class="nav-label">Import Your Inventory</span></a>
+                        </li>
+                        <li class="active">
+                            <a href="/cellarlocate"><i class="fa fa-upload"></i> <span class="nav-label">Cellar</span></a>
+                        </li>
+                        <li>
+                            <a href="/logout"><i class="fa fa-sign-out"></i> <span class="nav-label">Logout</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+        <div id="page-wrapper" class="white-bg dashbard-1">
+            <div class="row border-bottom">
+                <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                    <div class="navbar-header">
+                        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                    </div>
+                    <ul class="nav navbar-top-links navbar-right">
+                        <li style="padding: 20px">
+                            <span class="m-r-sm text-muted welcome-message">Welcome to Wine Vault</span>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row wrapper border-bottom white-bg page-heading">
+                <div class="col-lg-10">
+                    <h2>Your Cellar</h2>
+                </div>
+            </div>
+
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form id="imageUploadForm" enctype="multipart/form-data" action="/api/images/upload" method="post">
+                            <!-- Hidden file input for image upload -->
+                            <input type="file" id="fileInput" name="wineImage" style="display: none;">
+                            <!-- Video element for camera stream -->
+                            <video id="video" style="width: 100%; height: auto;" autoplay></video>
+                            <!-- Display captured image -->
+                            <img id="capturedImage" src="" alt="Captured Image" style="display: none;">
+                            <!-- Button to capture image -->
+                            <button type="button" id="captureBtn">Capture Image</button>
+                            <!-- Submit button (hidden) for form submission -->
+                            <input type="submit" style="display: none;">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const imageUploadForm = document.getElementById('imageUploadForm');
+            const video = document.getElementById('video');
+            const capturedImage = document.getElementById('capturedImage');
+            const fileInput = document.getElementById('fileInput');
+            const captureBtn = document.getElementById('captureBtn');
+
+            // Function to start the camera
+            async function startCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    console.log('Camera started successfully.');
+                } catch (err) {
+                    console.error('Error accessing camera:', err);
+                }
+            }
+
+            // Function to capture image and trigger file input
+            function captureImageAndUpload() {
+                console.log('Capturing image...');
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Set captured image src
+                capturedImage.src = canvas.toDataURL('image/jpeg');
+                capturedImage.style.display = 'block'; // Show captured image
+                video.style.display = 'none'; // Hide camera preview
+
+                console.log('Image captured.');
+
+                // Switch back to camera preview after a short delay (adjust as needed)
+                setTimeout(() => {
+                    capturedImage.style.display = 'none'; // Hide captured image
+                    video.style.display = 'block'; // Show camera preview
+                    console.log('Back to camera preview.');
+                }, 3000); // 3000 milliseconds (3 seconds) delay, adjust as needed
+
+                // Trigger the hidden file input to upload the captured image
+                fileInput.click();
+                console.log('File input clicked.');
+            }
+
+            // Add event listener for form submission
+            imageUploadForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formData = new FormData(imageUploadForm);
+
+                // Send the FormData to the server
+                axios.post('/api/images/upload', formData)
+                    .then(response => {
+                        console.log(response.data);
+                        // Handle the server response as needed
+                    })
+                    .catch(error => {
+                        console.error('Error uploading image:', error);
+                        // Handle the error
+                    });
+            });
+
+            // Add click event listener for the capture button
+            captureBtn.addEventListener('click', () => {
+                captureImageAndUpload();
+            });
+
+            startCamera(); // Start the camera when the page loads
+        </script>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="js/datatables.min.js"></script>
+        <script src="js/dataTables.bootstrap4.min.js"></script>
+        <script src="js/custom.js"></script>
+        <script src="js/minimize.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+    </body>
+</html>

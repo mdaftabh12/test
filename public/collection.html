@@ -1,0 +1,453 @@
+<!-- frontend - collection.html -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Collection - Wine Vault</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/font-awesome.css" rel="stylesheet">
+        <link href="css/all.css" rel="stylesheet">
+        <link href="css/datatables.min.css" rel="stylesheet">
+        <link href="css/toastr.min.css" rel="stylesheet">
+        <link href="css/animate.css" rel="stylesheet">
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <li class="nav-header">
+                            <div class="dropdown profile-element">
+                                <img alt="Profile Image" class="rounded-circle" id="profileImageElement" />
+                                <a href="/dashboard">
+                                    <span class="block m-t-xs" id="firstnamePlaceholder"></span>
+                                </a>
+                            </div>
+                            <div class="logo-element">
+                                Wine Vault
+                            </div>
+                        </li>
+                        <li>
+                            <a href="/dashboard"><i class="fa fa-home"></i> <span class="nav-label">Dashboard</span></a>
+                        </li>
+                        <li class="active">
+                            <a href="/collection"><i class="fa fa-list-ul"></i> <span class="nav-label">Collection</span></a>
+                        </li>
+                        <li>
+                            <a href="/editprofile"><i class="fa fa-pencil"></i> <span class="nav-label">Edit Your Profile</span></a>
+                        </li>
+                        <li>
+                            <a href="/importwine"><i class="fa fa-upload"></i> <span class="nav-label">Import Your Inventory</span></a>
+                        </li>
+                        <li>
+                            <a href="/cellarlocate"><i class="fa fa-upload"></i> <span class="nav-label">Cellar</span></a>
+                        </li>
+                        <li>
+                            <a href="/logout"><i class="fa fa-sign-out"></i> <span class="nav-label">Logout</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div id="page-wrapper" class="white-bg dashbard-1">
+                <div class="row border-bottom">
+                    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                        <div class="navbar-header">
+                            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                            <form role="search" class="navbar-form-custom" id="wineSearchForm" action="/wines/search" method="GET" autocomplete="off">
+                                <div class="form-group">
+                                    <input data-provide="typeahead" type="text" placeholder="Search For Wines" class="form-control" id="searchInput">
+                                </div>
+                            </form>
+                        </div>
+                        <ul class="nav navbar-top-links navbar-right">
+                            <li style="padding: 20px">
+                                <span class="m-r-sm text-muted welcome-message">Welcome to Wine Vault</span>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="wineList"></div>
+                    </div>
+                </div>
+
+                <!-- Modal from Search Dropdown -->
+                <div class="modal fade" id="wineDetailsModal" tabindex="-1" role="dialog" aria-labelledby="wineDetailsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="wineDetailsModalLabel">Add Bottle Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4 hero-image">
+                                        <img src="/img/hero/red.png" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h2><span id="wineName"></span></h2>
+                                        <p><strong>Type: </strong><span id="wineType"></span></p>
+                                        <p><strong>Winery: </strong><span id="wineWinery"></span></p>
+                                        <p><strong>Region: </strong><span id="wineRegion"></span></p>
+                                        <p><strong>Country: </strong><span id="wineCountry"></span></p>
+                                    </div>
+                                </div>
+                                    <div class="mb-3">
+                                        <div class="hr-line-dashed"></div>
+                                        <h3>Edit Additional Details</h3>
+
+                                        <label for="winePrice">Purchase Price</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-usd"></i></span>
+                                            </div>
+                                            <input type="number" id="winePrice" class="form-control rounded" placeholder="">
+                                        </div>
+                                        <div class="hr-line-dashed"></div>
+
+                                        <label for="wineYear">Vintage Year</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-globe"></i></span>
+                                            </div>
+                                            <input type="number" id="wineYear" class="form-control" placeholder="">
+                                        </div>
+                                        <div class="hr-line-dashed"></div>
+
+                                        <label for="wineVarietal">Varietal</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-pencil-square-o"></i></span>
+                                            </div>
+                                            <select id="wineVarietal" class="form-control" placeholder="Cabernet Sauvignon">
+                                                <option value="Chardonnay">Chardonnay</option>
+                                                <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+                                                <option value="Merlot">Merlot</option>
+                                                <option value="Pinot Noir">Pinot Noir</option>
+                                                <option value="Syrah (Shiraz)">Syrah (Shiraz)</option>
+                                                <option value="Sauvignon Blanc">Sauvignon Blanc</option>
+                                                <option value="Zinfandel">Zinfandel</option>
+                                                <option value="Sangiovese">Sangiovese</option>
+                                                <option value="Riesling">Riesling</option>
+                                                <option value="Malbec">Malbec</option>
+                                                <option value="Tempranillo">Tempranillo</option>
+                                                <option value="Grenache (Garnacha)">Grenache (Garnacha)</option>
+                                                <option value="Nebbiolo">Nebbiolo</option>
+                                                <option value="Gewürztraminer">Gewürztraminer</option>
+                                                <option value="Chenin Blanc">Chenin Blanc</option>
+                                                <option value="Mourvèdre">Mourvèdre</option>
+                                                <option value="Vermentino">Vermentino</option>
+                                                <option value="Viognier">Viognier</option>
+                                                <option value="Nero d'Avola">Nero d'Avola</option>
+                                                <option value="Grüner Veltliner">Grüner Veltliner</option>
+                                                <option value="Barbera">Barbera</option>
+                                                <option value="Carmenère">Carmenère</option>
+                                                <option value="Semillon">Semillon</option>
+                                                <option value="Albariño">Albariño</option>
+                                                <option value="Muscat/Moscato">Muscat/Moscato</option>
+                                                <option value="Cabernet Franc">Cabernet Franc</option>
+                                                <option value="Petit Verdot">Petit Verdot</option>
+                                                <option value="Gamay">Gamay</option>
+                                                <option value="Petite Sirah (Durif)">Petite Sirah (Durif)</option>
+                                                <option value="Tannat">Tannat</option>
+                                                <option value="Torrontés">Torrontés</option>
+                                                <option value="Marsanne">Marsanne</option>
+                                                <option value="Roussanne">Roussanne</option>
+                                                <option value="Garganega">Garganega</option>
+                                                <option value="Montepulciano">Montepulciano</option>
+                                                <option value="Red Blend">Red Blend</option>
+                                                <option value="Bordeaux Blend">Bordeaux Blend</option>
+                                            </select>
+                                        </div>
+                                        <div class="hr-line-dashed"></div>
+
+                                        <label for="wineSize">Size</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fa fa-signal"></i></span>
+                                            </div>
+                                            <select id="wineSize" class="form-control" placeholder="">
+                                                <option value="750ml Standard">750ml Standard</option>
+                                                <option value="187.5ml Split">187.5ml Split</option>
+                                                <option value="375ml Half">375ml Half</option>
+                                                <option value="1.5L Magnum">1.5L Magnum</option>
+                                                <option value="3.0L Double Magnum">3.0L Double Magnum</option>
+                                                <option value="4.5L Rehoboam">4.5L Rehoboam</option>
+                                                <option value="6.0L Imperial">6.0L Imperial</option>
+                                                <option value="9.0L Salmanazar">9.0L Salmanazar</option>
+                                            </select>
+                                        </div>
+                                        <div class="hr-line-dashed"></div>
+                                    </div>
+                                </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="addToCatalogBtn">Add to Collection</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wrapper wrapper-content">
+                    <div class="row">
+                        <div class="col-lg-12">
+                        <div class="ibox ">
+                            <div class="ibox-title">
+                                <a href="/" class="btn btn-default btn-rounded" id="addWineModalButton" data-toggle="modal" data-target="#addWineModal">
+                                    <i class="fa fa-plus"></i> 
+                                    <span class="nav-label">Can't Find Your Wine?</span>
+                                </a>
+                            </div>
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table class="table dataTables-example" id="wineTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Region</th>
+                                                <th>Price</th>
+                                                <th>Year</th>
+                                                <th>Varietal</th>
+                                                <th>Type</th> <!-- Include the 'Type' column -->
+                                                <th>Winery</th> <!-- Include the 'Winery' column -->
+                                                <th>Country</th> <!-- Include the 'Country' column -->
+                                                <th>Size</th> <!-- Include the 'Size' column -->
+                                                <th></th> 
+                                                <th>Adjust</th> <!-- Checkbox column header -->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Existing or dynamically generated rows go here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button id="bulkDeleteBtn" class="btn btn-danger">Delete Multiple Wines</button>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+
+            <div class="modal fade" id="addWineModal" tabindex="-1" role="dialog" aria-labelledby="addWineModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addWineModalLabel">Add A New Wine To Your Collection</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="wineForm">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="region" class="form-label">Region</label>
+                                    <input type="text" class="form-control" id="region" name="region">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="number" class="form-control" id="price" name="price">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="year" class="form-label">Year</label>
+                                    <input type="number" class="form-control" id="year" name="year">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="varietal" class="form-label">Varietal</label>
+                                    <select class="form-select select2_demo_1 form-control" id="varietal" name="varietal">
+                                        <option value="Chardonnay">Chardonnay</option>
+                                        <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+                                        <option value="Merlot">Merlot</option>
+                                        <option value="Pinot Noir">Pinot Noir</option>
+                                        <option value="Syrah (Shiraz)">Syrah (Shiraz)</option>
+                                        <option value="Sauvignon Blanc">Sauvignon Blanc</option>
+                                        <option value="Zinfandel">Zinfandel</option>
+                                        <option value="Sangiovese">Sangiovese</option>
+                                        <option value="Riesling">Riesling</option>
+                                        <option value="Malbec">Malbec</option>
+                                        <option value="Tempranillo">Tempranillo</option>
+                                        <option value="Grenache (Garnacha)">Grenache (Garnacha)</option>
+                                        <option value="Nebbiolo">Nebbiolo</option>
+                                        <option value="Gewürztraminer">Gewürztraminer</option>
+                                        <option value="Chenin Blanc">Chenin Blanc</option>
+                                        <option value="Mourvèdre">Mourvèdre</option>
+                                        <option value="Vermentino">Vermentino</option>
+                                        <option value="Viognier">Viognier</option>
+                                        <option value="Nero d'Avola">Nero d'Avola</option>
+                                        <option value="Grüner Veltliner">Grüner Veltliner</option>
+                                        <option value="Barbera">Barbera</option>
+                                        <option value="Carmenère">Carmenère</option>
+                                        <option value="Semillon">Semillon</option>
+                                        <option value="Albariño">Albariño</option>
+                                        <option value="Muscat/Moscato">Muscat/Moscato</option>
+                                        <option value="Cabernet Franc">Cabernet Franc</option>
+                                        <option value="Petit Verdot">Petit Verdot</option>
+                                        <option value="Gamay">Gamay</option>
+                                        <option value="Petite Sirah (Durif)">Petite Sirah (Durif)</option>
+                                        <option value="Tannat">Tannat</option>
+                                        <option value="Torrontés">Torrontés</option>
+                                        <option value="Marsanne">Marsanne</option>
+                                        <option value="Roussanne">Roussanne</option>
+                                        <option value="Garganega">Garganega</option>
+                                        <option value="Montepulciano">Montepulciano</option>
+                                        <option value="Red Blend">Red Blend</option>
+                                        <option value="Bordeaux Blend">Bordeaux Blend</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="type" class="form-label">Type</label>
+                                    <input type="text" class="form-control" id="type" name="type">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="winery" class="form-label">Winery</label>
+                                    <input type="text" class="form-control" id="winery" name="winery">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="size" class="form-label">Size</label>
+                                    <select class="form-select select2_demo_1 form-control" id="size" name="size">
+                                        <option value="750ml Standard">750ml Standard</option>
+                                        <option value="187.5ml Split">187.5ml Split</option>
+                                        <option value="375ml Half">375ml Half</option>
+                                        <option value="1.5L Magnum">1.5L Magnum</option>
+                                        <option value="3.0L Double Magnum">3.0L Double Magnum</option>
+                                        <option value="4.5L Rehoboam">4.5L Rehoboam</option>
+                                        <option value="6.0L Imperial">6.0L Imperial</option>
+                                        <option value="9.0L Salmanazar">9.0L Salmanazar</option>
+                                    </select>
+                                </div>
+                                <div class="hr-line-dashed"></div>
+                                <button type="submit" class="btn btn-primary">Add Wine</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Edit Wine Modal -->
+        <div class="modal fade" id="editWineModal" tabindex="-1" role="dialog" aria-labelledby="editWineModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editWineModalLabel">Edit Wine Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editWineForm">
+                            <div class="mb-3">
+                                <label for="editName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="editName" name="editName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editRegion" class="form-label">Region</label>
+                                <input type="text" class="form-control" id="editRegion" name="editRegion">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPrice" class="form-label">Price</label>
+                                <input type="number" class="form-control" id="editPrice" name="editPrice">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editYear" class="form-label">Year</label>
+                                <input type="number" class="form-control" id="editYear" name="editYear">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editVarietal" class="form-label">Varietal</label>
+                                <select class="form-select select2_demo_1 form-control" id="editVarietal" name="editVarietal">
+                                        <option value="Chardonnay">Chardonnay</option>
+                                        <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+                                        <option value="Merlot">Merlot</option>
+                                        <option value="Pinot Noir">Pinot Noir</option>
+                                        <option value="Syrah (Shiraz)">Syrah (Shiraz)</option>
+                                        <option value="Sauvignon Blanc">Sauvignon Blanc</option>
+                                        <option value="Zinfandel">Zinfandel</option>
+                                        <option value="Sangiovese">Sangiovese</option>
+                                        <option value="Riesling">Riesling</option>
+                                        <option value="Malbec">Malbec</option>
+                                        <option value="Tempranillo">Tempranillo</option>
+                                        <option value="Grenache (Garnacha)">Grenache (Garnacha)</option>
+                                        <option value="Nebbiolo">Nebbiolo</option>
+                                        <option value="Gewürztraminer">Gewürztraminer</option>
+                                        <option value="Chenin Blanc">Chenin Blanc</option>
+                                        <option value="Mourvèdre">Mourvèdre</option>
+                                        <option value="Vermentino">Vermentino</option>
+                                        <option value="Viognier">Viognier</option>
+                                        <option value="Nero d'Avola">Nero d'Avola</option>
+                                        <option value="Grüner Veltliner">Grüner Veltliner</option>
+                                        <option value="Barbera">Barbera</option>
+                                        <option value="Carmenère">Carmenère</option>
+                                        <option value="Semillon">Semillon</option>
+                                        <option value="Albariño">Albariño</option>
+                                        <option value="Muscat/Moscato">Muscat/Moscato</option>
+                                        <option value="Cabernet Franc">Cabernet Franc</option>
+                                        <option value="Petit Verdot">Petit Verdot</option>
+                                        <option value="Gamay">Gamay</option>
+                                        <option value="Petite Sirah (Durif)">Petite Sirah (Durif)</option>
+                                        <option value="Tannat">Tannat</option>
+                                        <option value="Torrontés">Torrontés</option>
+                                        <option value="Marsanne">Marsanne</option>
+                                        <option value="Roussanne">Roussanne</option>
+                                        <option value="Garganega">Garganega</option>
+                                        <option value="Montepulciano">Montepulciano</option>
+                                        <option value="Red Blend">Red Blend</option>
+                                        <option value="Bordeaux Blend">Bordeaux Blend</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editType" class="form-label">Type</label>
+                                <input type="text" class="form-control" id="editType" name="editType">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editWinery" class="form-label">Winery</label>
+                                <input type="text" class="form-control" id="editWinery" name="editWinery">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editCountry" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="editCountry" name="editCountry">
+                            </div>
+                            <div class="mb-3">
+                                <label for="editSize" class="form-label">Size</label>
+                                <select class="form-select select2_demo_1 form-control" id="editSize" name="editSize">
+                                    <option value="750ml Standard">750ml Standard</option>
+                                        <option value="187.5ml Split">187.5ml Split</option>
+                                        <option value="375ml Half">375ml Half</option>
+                                        <option value="1.5L Magnum">1.5L Magnum</option>
+                                        <option value="3.0L Double Magnum">3.0L Double Magnum</option>
+                                        <option value="4.5L Rehoboam">4.5L Rehoboam</option>
+                                        <option value="6.0L Imperial">6.0L Imperial</option>
+                                        <option value="9.0L Salmanazar">9.0L Salmanazar</option>
+                                </select>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="js/datatables.min.js"></script>
+        <script src="js/dataTables.bootstrap4.min.js"></script>
+        <script src="js/custom.js"></script>
+        <script src="js/minimize.js"></script>
+        <script src="js/bootstrap.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+    </body>
+</html>

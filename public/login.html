@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Wine Vault</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="icons/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="icons/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="icons/font-awesome/css/all.css" rel="stylesheet">
+    <link href="css/datatables.min.css" rel="stylesheet">
+    <link href="css/toastr.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+</head>
+
+<body class="white-bg">
+
+    <div class="loginColumns animated fadeInDown">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="font-bold">Welcome to <a href="/dashboard" style="text-decoration: none; color: inherit;">Wine Vault</a></h1>
+                <h2>
+                    <small>Effortlessly manage your wine collection. Wine Vault ensures you know what you have and precisely where it's stored. Treat your wine collection as the masterpiece it is, and let's manage it accordingly.</small>
+                </h2>
+            </div>
+            <div class="col-md-6">
+                <div class="ibox-content">
+                    <form class="m-t" id="loginForm" method="POST" action="/auth/custom-login">
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Email" required="" name="email">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" class="form-control" placeholder="Password" required="" name="password">
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
+
+                        <a class="btn btn-sm btn-white btn-block" href="register.html">Create an account</a>
+
+                        <p class="text-muted text-center">
+                            <small>Forgot your password? <a href="/password_reset_request">Reset it here</a></small>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-md-6">
+                Wine Vault
+            </div>
+            <div class="col-md-6 text-right">
+               <small>2024</small>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+    <script src="js/custom.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</html>

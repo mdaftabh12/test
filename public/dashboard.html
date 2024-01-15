@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Welcome - Wine Vault</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/font-awesome.css" rel="stylesheet">
+        <link href="css/all.css" rel="stylesheet">
+        <link href="css/datatables.min.css" rel="stylesheet">
+        <link href="css/toastr.min.css" rel="stylesheet">
+        <link href="css/animate.css" rel="stylesheet">
+        <link href="css/main.css" rel="stylesheet">
+        <link href="https://shepherdjs.dev/dist/css/shepherd.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav class="navbar-default navbar-static-side" role="navigation">
+                <div class="sidebar-collapse">
+                    <ul class="nav metismenu" id="side-menu">
+                        <li class="nav-header">
+                            <div class="dropdown profile-element">
+                                <img alt="Profile Image" class="rounded-circle" id="profileImageElement" />
+                                <a href="/dashboard">
+                                    <span class="block m-t-xs" id="firstnamePlaceholder"></span>
+                                </a>
+                            </div>
+                            <div class="logo-element">
+                                Wine Vault
+                            </div>
+                        </li>
+                        <li class="active">
+                            <a href="/dashboard"><i class="fa fa-home"></i> <span class="nav-label">Dashboard</span></a>
+                        </li>
+                        <li>
+                            <a href="/collection"><i class="fa fa-list-ul"></i> <span class="nav-label">Collection</span></a>
+                        </li>
+                        <li>
+                            <a href="/editprofile"><i class="fa fa-pencil"></i> <span class="nav-label">Edit Your Profile</span></a>
+                        </li>
+                        <li>
+                            <a href="/importwine"><i class="fa fa-upload"></i> <span class="nav-label">Import Your Inventory</span></a>
+                        </li>
+                        <li>
+                            <a href="/cellarlocate"><i class="fa fa-upload"></i> <span class="nav-label">Cellar</span></a>
+                        </li>
+                        <li>
+                            <a href="/logout"><i class="fa fa-sign-out"></i> <span class="nav-label">Logout</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div id="page-wrapper" class="white-bg">
+                <div class="row border-bottom">
+                    <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                        <div class="navbar-header">
+                            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                        </div>
+                        <ul class="nav navbar-top-links navbar-right">
+                            <li style="padding: 20px">
+                                <span class="m-r-sm text-muted welcome-message">Welcome to Wine Vault</span>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                            <h3 class="font-bold">Market Trends</h3>
+                            <p>Global Wine Index % Return vs. Global Equity Index</p>
+                        <div class="row">
+                            <div class="col-lg-7">
+                                <div class="ibox">
+                                    <div id="wineStockChart"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <ul class="stat-list ticker" id="stockTicker">
+                                    <li class="widget style1 livex" id="stockDataSTZ">
+                                      <h2 class="no-margins"></h2>
+                                      <small></small>
+                                      <div class="stat-percent"></div>
+                                    </li>
+                                    <li class="widget style1 livex" id="stockDataLVMUY">
+                                      <h2 class="no-margins"></h2>
+                                      <small></small>
+                                      <div class="stat-percent"></div>
+                                    </li>
+                                    <li class="widget style1 livex" id="stockDataPDRDF">
+                                      <h2 class="no-margins"></h2>
+                                      <small></small>
+                                      <div class="stat-percent"></div>
+                                    </li>
+                                    <li class="widget style1 livex" id="stockDataDEO">
+                                      <h2 class="no-margins"></h2>
+                                      <small></small>
+                                      <div class="stat-percent"></div>
+                                    </li>
+                                  </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 class="font-bold">Collection</h2>
+                        <p>Top-Level Overview Showcasing Key Trends within Your <a href="/collection" style="text-decoration: none; color: inherit;"> <b>Cellar</b> <i class="fa fa-list-ul"></i></a>.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="widget navy-bg p-lg text-center">
+                                <i class="fa fa-line-chart fa-4x"></i>
+                                <h5> Total Purchase Value </h5>
+                                <h1 id="totalValue"></h1>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="widget navy-bg p-lg text-center">
+                                <i class="fa fa-check-circle fa-4x"></i>
+                                <h5> Total Bottles </h5>
+                                <h1 id="totalWines"></h1>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="widget navy-bg p-lg text-center">
+                                <i class="fa fa-money fa-4x"></i>
+                                <h5> Price Per Bottle </h5>
+                                <h1 id="pricePerBottle"></h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-title">
+                                <h4 class="font-bold">Purchase Price Distribution</h4>
+                            </div>
+                            <div class="ibox-content">
+                                <div id="barChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-title">
+                                <h4 class="font-bold">Wine Varietal Distribution</h4>
+                            </div>
+                            <div class="ibox-content">
+                                <div id="wineVarietyChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h2 class="font-bold">Activity</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="ibox">
+                            <div class="ibox-content">
+                                <ul id="logs-list" class="list-group">
+                                    <!-- Log items will be populated dynamically using JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="jumbotron">
+                            <h1>What Does ‘Old Vine’ Mean in Wine?</h1>
+                            <p>Ever spotted the term “old vine”—or its French equivalent, “vieilles vignes”—on wine labels and wondered what it meant? In the simplest terms, old-vine wine is wine made from fruit grown on vines that are, well, old. But how old...</p>
+                            <p><a href="https://vinepair.com/wine-geekly/what-the-heck-is-old-vine-wine-heres-everything-you-need-to-know/" role="button" class="btn btn-primary btn-lg btn-jumbotron">Learn more</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            <div class="modal fade" id="addWineModal" tabindex="-1" role="dialog" aria-labelledby="addWineModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addWineModalLabel">Add A New Wine To Your Collection</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form id="wineForm">
+                      <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                      </div>
+                      <div class="mb-3">
+                        <label for="region" class="form-label">Region</label>
+                        <input type="text" class="form-control" id="region" name="region">
+                      </div>
+                      <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" name="price">
+                      </div>
+                      <div class="mb-3">
+                        <label for="year" class="form-label">Year</label>
+                        <input type="number" class="form-control" id="year" name="year">
+                      </div>
+                      <div class="mb-3">
+                        <label for="varietal" class="form-label">Varietal</label>
+                        <select class="form-select select2_demo_1 form-control" id="varietal" name="varietal">
+                          <option value="Chardonnay">Chardonnay</option>
+                          <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+                          <option value="Merlot">Merlot</option>
+                          <option value="Pinot Noir">Pinot Noir</option>
+                          <!-- Add more grape options as needed -->
+                        </select>
+                      </div>
+                      <div class="hr-line-dashed"></div>
+                      <button type="submit" class="btn btn-primary">Add Wine</button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+        </div>
+      </div>
+      
+      <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script src="js/jquery-ui.min.js"></script>
+      <script src="js/popper.min.js"></script>
+      <script src="js/bootstrap.js"></script>
+      <script src="js/slimscroll.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+      <script src="js/minimize.js"></script>
+      <script src="js/datatables.min.js"></script>
+      <script src="js/dataTables.bootstrap4.min.js"></script>
+      <script src="js/chart.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+      <script src="js/custom.js"></script>
+    </body>
+</html>
