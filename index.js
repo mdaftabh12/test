@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('./config/passport');
 const User = require('./models/user');
+const {Wine} = require('./models/wine');
 const cors = require('cors');
 const authRouter = require('./routes/auth');
 const wineRouter = require('./routes/wines');
@@ -176,6 +177,27 @@ app.post('/register', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Registration failed. Please try again.');
+  }
+});
+
+app.post('/deleteProfile', isAuthenticated, async (req, res) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user._id;
+
+    // Fetch user data including the profileImage field
+    const userData = await User.findById(userId);
+
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await Wine.deleteMany({owner: userId});
+
+    await User.findByIdAndDelete(userId);
+    // Send the updated user data in the response
+    res.redirect('/login');
+  } else {
+    return res.status(401).json({ error: 'User is not authenticated' });
   }
 });
 

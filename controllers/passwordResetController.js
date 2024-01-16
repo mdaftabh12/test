@@ -49,6 +49,8 @@ exports.forgotPassword = async (req, res) => {
 
         const resetLink = `http://localhost:3000/password_reset/${token}`;
 
+        console.log(email);
+
         const mailOptions = {
             from: 'alexander_forss@hotmail.com',
             to: email,
@@ -92,26 +94,21 @@ exports.resetPassword = async (req, res) => {
         console.log('Token:', token);
         console.log('New Password:', newPassword);
 
-        const resetToken = await ResetToken.findOne({ token });
+        const resetToken = await ResetToken.findOne({ token }).populate('userId');
 
         if (!resetToken || resetToken.expirationDate < new Date()) {
             console.log('Invalid or expired token');
             return res.status(404).send('Invalid or expired token');
         }
 
-        const user = await User.findById(resetToken.userId);
+        const user = await User.findById(resetToken.userId._id);
 
         if (!user) {
             console.log('User not found');
             return res.status(404).send('User not found');
         }
 
-        // Hash the new password
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(newPassword, salt);
-
-        // Update the user's password
-        user.password = hash;
+        user.password = newPassword;
         await user.save();
 
         // Remove the used reset token from the database
