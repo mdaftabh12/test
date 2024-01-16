@@ -195,7 +195,7 @@ app.post('/deleteProfile', isAuthenticated, async (req, res) => {
 
     await User.findByIdAndDelete(userId);
     // Send the updated user data in the response
-    return res.status(200).json({status: 'Success', message: 'User deleted successfully'});
+    res.redirect('/login');
   } else {
     return res.status(401).json({ error: 'User is not authenticated' });
   }
