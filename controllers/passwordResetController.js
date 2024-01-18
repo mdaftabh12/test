@@ -1,6 +1,6 @@
 //controllers/passwordResetController.js
 const User = require('../models/user');
-const ResetToken = require('../models/resetToken');
+const ResetToken = require('../models/verificationToken');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
@@ -8,22 +8,6 @@ const crypto = require('crypto');
 const generateToken = () => {
   return crypto.randomBytes(20).toString('hex');
 };
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp-mail.outlook.com', 
-    port: 587, 
-    secure: false, 
-    auth: {
-        user: 'alexander_forss@hotmail.com',
-        pass: '<<password>>',
-    },
-    tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false,
-    },
-});
-
-module.exports.transporter = transporter;
 
 exports.forgotPassword = async (req, res) => {
     console.log('Forgot Password Route Reached');
