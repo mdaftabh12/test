@@ -1,7 +1,7 @@
-// models/resetToken.js
+// models/verificationToken.js
 const mongoose = require('mongoose');
 
-const resetTokenSchema = new mongoose.Schema({
+const tokenSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -17,7 +17,7 @@ const resetTokenSchema = new mongoose.Schema({
   },
 });
 
-resetTokenSchema.statics.clearExpiredTokens = async function() {
+tokenSchema.statics.clearExpiredTokens = async function() {
   try {
     await this.deleteMany({ expirationDate: { $lt: new Date() } });
   } catch (error) {
@@ -25,6 +25,6 @@ resetTokenSchema.statics.clearExpiredTokens = async function() {
   }
 };
 
-const ResetToken = mongoose.model('ResetToken', resetTokenSchema);
+const Token = mongoose.model('Token', tokenSchema);
 
-module.exports = ResetToken;
+module.exports = Token;

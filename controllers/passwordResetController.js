@@ -1,29 +1,12 @@
 //controllers/passwordResetController.js
 const User = require('../models/user');
-const ResetToken = require('../models/resetToken');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcryptjs');
+const ResetToken = require('../models/verificationToken');
 const crypto = require('crypto');
+const {transporter, sendEmail} = require('../config/email');
 
 const generateToken = () => {
   return crypto.randomBytes(20).toString('hex');
 };
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp-mail.outlook.com', 
-    port: 587, 
-    secure: false, 
-    auth: {
-        user: 'alexander_forss@hotmail.com',
-        pass: '<<password>>',
-    },
-    tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false,
-    },
-});
-
-module.exports.transporter = transporter;
 
 exports.forgotPassword = async (req, res) => {
     console.log('Forgot Password Route Reached');
@@ -110,6 +93,8 @@ exports.resetPassword = async (req, res) => {
 
         user.password = newPassword;
         await user.save();
+
+        await sendEmail({subject: 'Password Updated', message: 'Your password has been updated.', email: user.email})
 
         // Remove the used reset token from the database
         await ResetToken.deleteOne({ token });

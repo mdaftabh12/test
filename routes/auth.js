@@ -4,6 +4,36 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const wineController = require('../controllers/wineController');
+const VerificationToken = require('../models/verificationToken');
+const crypto = require('crypto');
+const {transporter} = require('../config/email');
+
+const generateToken = () => {
+  return crypto.randomBytes(20).toString('hex');
+};
+
+const sendVerificationLink = async ({user}) => {
+    const token = generateToken();
+    const verificationToken = new VerificationToken({
+        userId: user._id,
+        token,
+        expirationDate: Date.now() + 3600000, // Token expires in 1 hour
+    });
+
+    await verificationToken.save();
+
+    const verifyLink = `http://localhost:3000/auth/verify-email/${token}`;
+
+    const mailOptions = {
+        from: 'alexander_forss@hotmail.com',
+        to: user.email,
+        subject: 'Verfiy Your Account',
+        text: `Click this link to verify your account: ${verifyLink}`,
+        html: `<p>Click <a href="${verifyLink}">here</a> Verify you account.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+}
 
 // Register a new user
 router.post('/register', async (req, res, next) => {
@@ -17,17 +47,21 @@ router.post('/register', async (req, res, next) => {
 
         // Check if the user already exists
         const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            console.log('User with this email already exists');
-            return res.status(400).json({ message: 'User with this email already exists' });
+
+        if (existingUser && !existingUser.isVerified) {
+            if(!existingUser.isVerified) {
+                await sendVerificationLink({user: existingUser})
+
+                console.log('User with this email already exists, Verification link has been sent to the email.');
+                return res.status(400).send({ message: 'User with this email already exists, Verification link has been sent to the email.' });
+            } else {
+                console.log('User with this email already exists');
+                return res.status(400).send({ message: 'User with this email already exists.' });
+            }
         }
 
-        // Hash the password before saving it to the database
-        const hashedPassword = await bcrypt.hash(password, 10);
-        console.log('Hashed Password for Registration:', hashedPassword);
-
         // Create a new user object including first and last names
-        const newUser = new User({ username, email, password: hashedPassword, firstName, lastName });
+        const newUser = new User({ username, email, password, firstName, lastName });
 
         // Save the new user to the database
         const savedUser = await newUser.save();
@@ -37,26 +71,42 @@ router.post('/register', async (req, res, next) => {
             return res.status(500).json({ message: 'User registration failed' });
         }
 
-        req.login(savedUser, async (err) => {
-            if (err) {
-                console.error('Error logging in after registration:', err);
-                return next(err);
-            }
+        await sendVerificationLink({user: savedUser})
 
-            try {
-                savedUser.isNewUser = true;
-                await savedUser.save();
-            } catch (updateError) {
-                console.error('Error updating isNewUser flag:', updateError);
-                // Handle error if needed
-            }
-
-            // Redirect to /dashboard upon successful registration and login
-            res.redirect('/dashboard');
-        });
+        // Redirect to /dashboard upon successful registration and login
+        res.status(201).send({message: 'Signup successfully, Please verify your email.'})
     } catch (err) {
         console.error('Error during registration:', err);
         next(err);
+    }
+});
+
+router.post('/verify-email/:token', async (req, res) => {
+    try{
+        const { token } = req.params;
+        const verificationToken = await VerificationToken.findOne({ token }).populate('userId');
+
+        console.log(verificationToken);
+
+        if (!verificationToken || verificationToken.expirationDate < new Date()) {
+            console.log('Invalid or expired link');
+            return res.status(404).send({error: 'Invalid or expired link'});
+        }
+
+        const user = await User.findById(verificationToken.userId._id);
+
+        if (!user) {
+            console.log('User not found');
+            res.status(404).send('User not found');
+        }
+
+        user.isVerified = true;
+        await user.save();
+
+        await VerificationToken.deleteOne({ token });
+        res.status(200).send({message: 'User verified successfully'});
+    } catch (e) {
+        res.status(500).send({error: 'Error verifying email'});
     }
 });
 
@@ -74,6 +124,10 @@ router.post('/custom-login', async (req, res, next) => {
         if (!user) {
             console.log('User not found');
             return res.status(401).json({ message: 'User not found' });
+        }
+
+        if(!user.isVerified) {
+            return res.status(401).json({message: 'Email is not verified yet, please verify email first.'})
         }
 
         console.log('Stored Password:', user.password);
@@ -96,7 +150,6 @@ router.post('/custom-login', async (req, res, next) => {
             }
 
             console.log('Login successful:', user.email);
-
             // Redirect to /dashboard upon successful login
             return res.redirect('/dashboard');
         });
