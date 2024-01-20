@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Account</title>
+</head>
+
+<body>
+    <div class="verify-email-wrapper">
+        <h4>Verifying...</h4>
+    </div>
+
+    <script>
+        const wrapper = document.querySelector('.verify-email-wrapper');
+        const token = window.location.pathname.split('/').pop();
+
+        (async function () {
+            // Send email to the server for processing
+            const response = await fetch(`/auth/verify-email/${token}`, {
+                method: 'POST',
+            });
+
+            const data = await response.json();
+            if(data.message) {
+                wrapper.innerHTML = `<h4>Verified successfully, Now you can close this window.<h4/>`
+            } else {
+                wrapper.innerHTML = `<h4>${data.error}<h4/>`
+            }
+        })();
+    </script>
+</body>
+
+</html>

@@ -25,17 +25,14 @@ const sendVerificationLink = async ({user}) => {
     const verifyLink = `http://localhost:3000/auth/verify-email/${token}`;
 
     const mailOptions = {
-        from: 'unknownperson4020@gmail.com',
+        from: 'alexander_forss@hotmail.com',
         to: user.email,
         subject: 'Verfiy Your Account',
         text: `Click this link to verify your account: ${verifyLink}`,
         html: `<p>Click <a href="${verifyLink}">here</a> Verify you account.</p>`,
     };
 
-    console.log(mailOptions);
-
     await transporter.sendMail(mailOptions);
-    return;
 }
 
 // Register a new user
@@ -63,12 +60,8 @@ router.post('/register', async (req, res, next) => {
             }
         }
 
-        // Hash the password before saving it to the database
-        const hashedPassword = await bcrypt.hash(password, 10);
-        console.log('Hashed Password for Registration:', hashedPassword);
-
         // Create a new user object including first and last names
-        const newUser = new User({ username, email, password: hashedPassword, firstName, lastName });
+        const newUser = new User({ username, email, password, firstName, lastName });
 
         // Save the new user to the database
         const savedUser = await newUser.save();
@@ -80,23 +73,8 @@ router.post('/register', async (req, res, next) => {
 
         await sendVerificationLink({user: savedUser})
 
-        req.login(savedUser, async (err) => {
-            if (err) {
-                console.error('Error logging in after registration:', err);
-                return next(err);
-            }
-
-            try {
-                savedUser.isNewUser = true;
-                await savedUser.save();
-            } catch (updateError) {
-                console.error('Error updating isNewUser flag:', updateError);
-                // Handle error if needed
-            }
-
-            // Redirect to /dashboard upon successful registration and login
-            res.redirect('/dashboard');
-        });
+        // Redirect to /dashboard upon successful registration and login
+        res.status(201).send({message: 'Signup successfully, Please verify your email.'})
     } catch (err) {
         console.error('Error during registration:', err);
         next(err);
@@ -105,34 +83,30 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/verify-email/:token', async (req, res) => {
     try{
-        console.log("Email verify hit");
         const { token } = req.params;
         const verificationToken = await VerificationToken.findOne({ token }).populate('userId');
 
+        console.log(verificationToken);
+
         if (!verificationToken || verificationToken.expirationDate < new Date()) {
-            console.log('Invalid or expired token');
-            return res.status(404).send('Invalid or expired link');
+            console.log('Invalid or expired link');
+            return res.status(404).send({error: 'Invalid or expired link'});
         }
 
         const user = await User.findById(verificationToken.userId._id);
 
         if (!user) {
             console.log('User not found');
-            return res.status(404).send('User not found');
+            res.status(404).send('User not found');
         }
 
         user.isVerified = true;
         await user.save();
 
-        // Remove the used reset token from the database
         await VerificationToken.deleteOne({ token });
-
-        console.log('User verified successfully');
-        res.status(200).send('User verified successfully');
+        res.status(200).send({message: 'User verified successfully'});
     } catch (e) {
-        onsole.error(err);
-        console.log('Error verifying email');
-        return res.status(500).send('Error verifying email');
+        res.status(500).send({error: 'Error verifying email'});
     }
 });
 
@@ -150,6 +124,10 @@ router.post('/custom-login', async (req, res, next) => {
         if (!user) {
             console.log('User not found');
             return res.status(401).json({ message: 'User not found' });
+        }
+
+        if(!user.isVerified) {
+            return res.status(401).json({message: 'Email is not verified yet, please verify email first.'})
         }
 
         console.log('Stored Password:', user.password);
@@ -172,7 +150,6 @@ router.post('/custom-login', async (req, res, next) => {
             }
 
             console.log('Login successful:', user.email);
-
             // Redirect to /dashboard upon successful login
             return res.redirect('/dashboard');
         });

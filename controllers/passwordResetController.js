@@ -1,9 +1,8 @@
 //controllers/passwordResetController.js
 const User = require('../models/user');
 const ResetToken = require('../models/verificationToken');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const {transporter, sendEmail} = require('../config/email');
 
 const generateToken = () => {
   return crypto.randomBytes(20).toString('hex');
@@ -94,6 +93,8 @@ exports.resetPassword = async (req, res) => {
 
         user.password = newPassword;
         await user.save();
+
+        await sendEmail({subject: 'Password Updated', message: 'Your password has been updated.', email: user.email})
 
         // Remove the used reset token from the database
         await ResetToken.deleteOne({ token });

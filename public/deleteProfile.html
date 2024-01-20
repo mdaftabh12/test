@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account</title>
+</head>
+<body>
+    <div class="verify-otp-wrapper">
+        <h4>Please enter OTP, sent to your email address.</h4>
+        <p>OTP is valid for 10 minutes only.</p>
+    </div>
+    <form action="/delete-profile/verify-otp" method="post">
+        <input class="form-control" id="otp" name="otp" required />
+        <button type="submit">Delete Account</button>
+    </form>
+</body>
+</html>

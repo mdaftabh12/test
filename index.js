@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('./config/passport');
 const User = require('./models/user');
-const {Wine} = require('./models/wine');
 const cors = require('cors');
 const authRouter = require('./routes/auth');
 const wineRouter = require('./routes/wines');
@@ -15,6 +14,8 @@ const sp500DataRoutes = require('./routes/sp500DataRoutes');
 const wineController = require('./controllers/wineController');
 const passwordResetRouter = require('./routes/passwordReset');
 const imageRoutes = require('./routes/imageRoutes');
+const deleteProfileRoutes = require('./routes/deleteProfile');
+const isAuthenticated = require('./middlewares/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,14 +40,7 @@ app.use(passport.session());
 
 // Mounted the authentication routes
 app.use('/auth', authRouter);
-
-// Define isAuthenticated middleware
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/login');
-}
+app.use(deleteProfileRoutes);
 
 // MongoDB Connection
 // const dbConnection = mongoose.connection;
@@ -108,6 +102,14 @@ app.get('/cellarlocate', isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cellarlocate.html'));
 });
 
+app.get('/auth/verify-email/:token', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'verifyEmail.html'));
+});
+
+app.get('/delete-profile/verify-otp', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'deleteProfile.html'));
+});
+
 // Handle login form submission using Passport.js
 app.post('/login', passport.authenticate('local', {
   successRedirect: '/dashboard', // Redirect to '/' after successful login
@@ -167,53 +169,18 @@ app.use('/api/images', imageRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Handle registration form submission
-app.post('/register', async (req, res) => {
-  const { username, email, password, firstName, lastName } = req.body; 
+// app.post('/register', async (req, res) => {
+//   const { username, email, password, firstName, lastName } = req.body; 
 
-  try {
-    const newUser = new User({ username, email, password, firstName, lastName });
-    await newUser.save();
-    res.redirect('/dashboard');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Registration failed. Please try again.');
-  }
-});
-
-app.post('/deleteProfile', isAuthenticated, async (req, res) => {
-  if (req.isAuthenticated()) {
-    const userId = req.user._id;
-
-    // Fetch user data including the profileImage field
-    const userData = await User.findById(userId);
-
-    if (!userData) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    await Wine.deleteMany({owner: userId});
-
-    await User.findByIdAndDelete(userId);
-    // Send the updated user data in the response
-    res.redirect('/login');
-  } else {
-    return res.status(401).json({ error: 'User is not authenticated' });
-  }
-});
-
-// Add the isAuthenticated function before defining routes
-function isAuthenticated(req, res, next) {
-  const excludedRoutes = ['/password_reset_request', '/password_reset'];
-
-  if (excludedRoutes.includes(req.path)) {
-    return next();
-  }
-
-  if (req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/login');
-}
+//   try {
+//     const newUser = new User({ username, email, password, firstName, lastName });
+//     await newUser.save();
+//     res.redirect('/dashboard');
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Registration failed. Please try again.');
+//   }
+// });
 
 // The wildcard route should be at the end
 app.get('*', (req, res) => {
